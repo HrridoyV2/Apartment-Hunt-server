@@ -1,7 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-
+const ObjectId = require("mongodb").ObjectId;
 const MongoClient = require("mongodb").MongoClient;
 const uri =
   "mongodb+srv://hridoy:Team49@cluster0.smtok.mongodb.net/apartment-hunt?retryWrites=true&w=majority";
@@ -24,6 +24,8 @@ app.get("/", (req, res) => {
 
 client.connect((err) => {
   const rentsCollection = client.db("apartment-hunt").collection("items");
+  
+  const ordersCollection = client.db("apartment-hunt").collection("orders");
   // perform actions on the collection object
   
   //Send RentsData from server to Homepage
@@ -34,7 +36,21 @@ client.connect((err) => {
     })
   });
   //
-    
+    app.get("/home/:id", (req, res) => {
+      rentsCollection
+        .find({ _id: ObjectId(req.params.id) })
+        .toArray((err, documents) => {
+          res.send(documents[0]);
+        });
+    });    
+  //
+    app.post('/orderRent', (req, res) => {
+      const order = req.body;
+      ordersCollection.insertOne(order)
+      .then((result) => {
+        res.send(result.insertedCount > 0);
+      });
+    })
   //
 
 
