@@ -25,13 +25,17 @@ app.get("/", (req, res) => {
 client.connect((err) => {
   const rentsCollection = client.db("apartment-hunt").collection("items");
   // perform actions on the collection object
-  app.post("/rentData", (req, res) => {
-    const data = req.body
-    rentsCollection.insertMany(data).then((result) => {
-      res.send(result.insertedCount > 0);
-    });
-  });
   
+  //Send RentsData from server to Homepage
+  app.get("/rentData", (req, res) => {
+    rentsCollection.find({})
+    .toArray((err, documents) => {
+      res.send(documents);
+    })
+  });
+  //
+    
+  //
 
 
 
