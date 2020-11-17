@@ -31,6 +31,9 @@ client.connect((err) => {
   const rentsCollection = client.db("apartment-hunt").collection("items");
 
   const ordersCollection = client.db("apartment-hunt").collection("orders");
+
+  const adminsCollection = client.db("apartment-hunt").collection("admins");
+
   // perform actions on the collection object
 
   //Send RentsData from server to Homepage
@@ -57,8 +60,7 @@ client.connect((err) => {
   //
   // loading all orders
   app.get("/allOrders", (req, res) => {
-    ordersCollection.find({})
-    .toArray((err, docs) => res.send(docs));
+    ordersCollection.find({}).toArray((err, docs) => res.send(docs));
   });
   // loading orders by email
   app.get("/myRents/:email", (req, res) => {
@@ -67,7 +69,51 @@ client.connect((err) => {
       .toArray((err, docs) => res.send(docs));
   });
   // adding new service
-    
+  app.post("/addService", (req, res) => {
+    const file = req.files.file;
+    const title = req.body.title;
+    const location = req.body.location;
+    const price = req.body.price;
+
+    const newImg = file.data;
+    const encImg = newImg.toString("base64");
+
+    var image = {
+      contentType: file.mimetype,
+      size: file.size,
+      img: Buffer.from(encImg, "base64"),
+    };
+
+    rentsCollection
+      .insertOne({ title, location, price, image })
+      .then((result) => {
+        res.send(result.insertedCount > 0);
+      });
+  });
+  //
+  //
+  app.post("/isAdmin", (req, res) => {
+    const email = req.body.email;
+    adminsCollection.find({ email: email }).toArray((err, admins) => {
+      res.send(admins.length > 0);
+    });
+  });
+  //
+  // updating order
+  app.patch("/edit/:id", (req, res) => {
+    ordersCollection
+      .updateOne(
+        { _id: ObjectId(req.params.id) },
+        {
+          $set: {
+            status: req.body.status,
+          },
+        }
+      )
+      .then((result) => res.send(result.modifiedCount > 0));
+  });
+  //
+
   console.log("db connected");
 });
 
