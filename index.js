@@ -5,8 +5,9 @@ const ObjectId = require("mongodb").ObjectId;
 const fileUpload = require("express-fileupload");
 const fs = require("fs-extra");
 const MongoClient = require("mongodb").MongoClient;
-const uri =
-  "mongodb+srv://hridoy:Team49@cluster0.smtok.mongodb.net/apartment-hunt?retryWrites=true&w=majority";
+require('dotenv').config();
+
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.smtok.mongodb.net/apartment-hunt?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -20,7 +21,7 @@ app.use(cors());
 app.use(express.static("service"));
 app.use(fileUpload());
 
-const port = 5000;
+const port = 8000;
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
@@ -118,5 +119,5 @@ client.connect((err) => {
 });
 
 
-app.listen(port);
+app.listen(process.env.PORT || port)
 
